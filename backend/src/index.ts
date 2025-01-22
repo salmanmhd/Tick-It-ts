@@ -9,16 +9,18 @@ const MONGODB_URI = process.env.MONGODB_URI || '';
 const app = express();
 
 mongoose.connect(MONGODB_URI);
-cors();
 app.use(express.json());
-
+app.use(
+  cors({
+    origin: '*',
+  })
+);
 app.post('/', async (req, res) => {
-  const { title, description } = req.body;
+  const { title } = req.body;
 
   try {
     const todo = await Todo.create({
       title,
-      description,
       completed: false,
     });
     res.status(200).json({
@@ -69,10 +71,11 @@ app.delete('/:id', async (req, res) => {
 app.put('/:id', async (req, res) => {
   const id = req.params.id;
   const status = req.body.status;
+  console.log(!status);
   try {
     const todo = await Todo.findByIdAndUpdate(
       id,
-      { completed: status },
+      { completed: !status },
       { new: true }
     );
     res.status(200).json({
